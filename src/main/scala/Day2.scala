@@ -1,7 +1,3 @@
-import Day1.filename
-
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 import scala.io.Source
 import scala.util.Try
 
@@ -10,10 +6,21 @@ object Day2 extends App {
 
   val instructions: List[Int] = Source.fromFile(filename).getLines.map(_.split(",").map(_.toInt)).flatten.toList
 
-  val modified = instructions.updated(1, 12).updated(2,2)
+  val modified = instructions.updated(1, 12).updated(2, 2)
+  val part1Result = getResult(modified)(0)
 
+  println(s"Part 1: ${part1Result}")
 
-  println(getResult(modified))
+  for (a <- 0 to 99 ) {
+    for (b <- 0 to 99) {
+      val modifiedInstructions = instructions.updated(1, a).updated(2, b)
+      val res = Try(getResult(modifiedInstructions)(0)).toOption
+      res match {
+        case Some(19690720) => println(s"Part 2: pair ${a}, ${b}")
+        case _ => ()
+      }
+    }
+  }
 
 
   def getResult(instructions: List[Int], address: Int = 0): List[Int] = {
