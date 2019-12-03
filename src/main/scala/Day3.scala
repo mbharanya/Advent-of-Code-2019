@@ -4,7 +4,8 @@ import scala.util.Try
 object Day3 extends App {
 
   case class Position(x: Int, y: Int) {
-    def manhattenDistanceToCenter = Math.abs((0 - x) + (0 - y))
+    def zero = Position(0, 0)
+    def manhattenDistanceToCenter = Math.abs(x) + Math.abs(y)
 
     def +(move: (Int, Int, Int)): List[Position] = {
       val (moveX, moveY, operator) = move
@@ -47,9 +48,9 @@ object Day3 extends App {
   val realData = Source.fromFile(filename).getLines()
   val testData = List("R8,U5,L5,D3", "U7,R6,D4,L4")
   val testData1 = List("R75,D30,R83,U83,L12,D49,R71,U7,L72", "U62,R66,U55,R34,D71,R55,D58,R83")
+  val testData2 = List("R75,D30,R83,U83,L12,D49,R71,U7,L72",  "U62,R66,U55,R34,D71,R55,D58,R83")
 
-
-  val instructionsPerWire = testData1.map(_.split(",")).map(instructionsForOneWire => {
+  val instructionsPerWire = testData.map(_.split(",")).map(instructionsForOneWire => {
     instructionsForOneWire.map(instruction => {
       val pattern(direction, amount) = instruction
       direction match {
@@ -85,20 +86,29 @@ object Day3 extends App {
   }
 
 
-  //  val visual =
-  //    for {
-  //      x <- 0 to 10
-  //      y <- 0 to 10
-  //      char = if (coordinatesPerWire(0).contains(Position(x, y))) "#" else "."
-  //    } yield char
-  //
-  //  println(visual.grouped(10).mkString("\n"))
+    val visual =
+      for {
+        x <- 0 to 10
+        y <- 0 to 10
+        char = if (coordinatesPerWire(0).contains(Position(x, y))) "#" else "."
+      } yield char
+
+    println(visual.grouped(10).mkString("\n"))
 
   val flattenedCoords = coordinatesPerWire.flatten.filterNot(pos => pos.x == 0 && pos.y == 0)
+
   val intersections = flattenedCoords.diff(flattenedCoords.distinct).distinct
 
   val closestDistance = intersections.map(_.manhattenDistanceToCenter).min
 
   println(s"closest distance is ${closestDistance}")
+
+
+  val map1 = coordinatesPerWire(0).zipWithIndex.groupMapReduce(_._1)(_._2)(_ min _)
+  val map2 = coordinatesPerWire(1).zipWithIndex.groupMapReduce(_._1)(_._2)(_ min _)
+
+  val result = intersections.map(i => map1.lift(i).concat(map2.lift(i)))
+  // val intersections = (map1 intersect map2)(_ + _) - Position.zero
+//  println(intersections.values.min)
 
 }
